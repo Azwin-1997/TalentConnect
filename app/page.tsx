@@ -4,6 +4,7 @@ import { HowItWorksSection } from "./components/HowItWorksSection";
 import { FeaturedJobsSection } from "./components/FeaturedJobsSection";
 
 
+
 export default function HomePage() {
   return (
     <>
@@ -11,6 +12,7 @@ export default function HomePage() {
       <JobSearchPreview />
       <HowItWorksSection />
       <FeaturedJobsSection />
+     
     </>
   );
 }
