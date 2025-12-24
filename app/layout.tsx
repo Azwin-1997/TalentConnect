@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { HeroSection } from "./components/HeroSection";
+import { JobSearchPreview } from "./components/JobSearchPreview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <Navbar />
         <HeroSection />
+        <JobSearchPreview />
         {children}
         <Footer />
       </body>
