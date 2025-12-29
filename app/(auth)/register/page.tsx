@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent, JSX } from "react";
 import { Eye, EyeOff,Chrome } from "lucide-react";
 
 type Role = "jobseeker" | "recruiter";
