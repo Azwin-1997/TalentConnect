@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, JSX } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Github } from "lucide-react";
 
 export default function LoginPage(): JSX.Element {
