@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent, ChangeEvent, JSX } from "react";
-import { Eye, EyeOff,Chrome } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 type Role = "jobseeker" | "recruiter";
 
@@ -13,9 +13,10 @@ interface FormData {
   role: Role;
 }
 
- function RegisterPage(): JSX.Element {
+function RegisterPage(): JSX.Element {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
@@ -29,35 +30,33 @@ interface FormData {
     e.preventDefault();
   };
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Registration Form */}
+      {/* Left Side */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-blue-600 mb-2">TalentConnect</h1>
+            <h1 className="text-blue-600 mb-2 text-3xl font-bold">
+              TalentConnect
+            </h1>
             <h2 className="text-gray-900 mb-2">Create Account</h2>
             <p className="text-gray-600">
               Join TalentConnect and get started
             </p>
           </div>
 
-          {/* Registration Form */}
+
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div className="space-y-2">
-              <label
-                htmlFor="fullName"
-                className="text-gray-700"
-              >
+              <label htmlFor="fullName" className="text-gray-700">
                 Full Name
               </label>
               <input
@@ -68,16 +67,15 @@ interface FormData {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="h-12 w-full rounded-lg border border-gray-300 px-4 focus:border-blue-600 focus:ring-blue-600 transition-all"
+                className="h-12 w-full rounded-lg border border-gray-300 px-4
+                           text-black placeholder:text-black placeholder:opacity-70
+                           focus:border-blue-600 focus:ring-blue-600 transition-all"
               />
             </div>
 
             {/* Email */}
             <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-gray-700"
-              >
+              <label htmlFor="email" className="text-gray-700">
                 Email Address
               </label>
               <input
@@ -88,16 +86,15 @@ interface FormData {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="h-12 w-full rounded-lg border border-gray-300 px-4 focus:border-blue-600 focus:ring-blue-600 transition-all"
+                className="h-12 w-full rounded-lg border border-gray-300 px-4
+                           text-black placeholder:text-black placeholder:opacity-70
+                           focus:border-blue-600 focus:ring-blue-600 transition-all"
               />
             </div>
 
             {/* Password */}
             <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-gray-700"
-              >
+              <label htmlFor="password" className="text-gray-700">
                 Password
               </label>
               <div className="relative">
@@ -109,7 +106,9 @@ interface FormData {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-lg border border-gray-300 px-4 pr-10 focus:border-blue-600 focus:ring-blue-600 transition-all"
+                  className="h-12 w-full rounded-lg border border-gray-300 px-4 pr-10
+                             text-black placeholder:text-black placeholder:opacity-70
+                             focus:border-blue-600 focus:ring-blue-600 transition-all"
                 />
                 <button
                   type="button"
@@ -127,10 +126,7 @@ interface FormData {
 
             {/* Confirm Password */}
             <div className="space-y-2">
-              <label
-                htmlFor="confirmPassword"
-                className="text-gray-700"
-              >
+              <label htmlFor="confirmPassword" className="text-gray-700">
                 Confirm Password
               </label>
               <div className="relative">
@@ -142,7 +138,9 @@ interface FormData {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-lg border border-gray-300 px-4 pr-10 focus:border-blue-600 focus:ring-blue-600 transition-all"
+                  className="h-12 w-full rounded-lg border border-gray-300 px-4 pr-10
+                             text-black placeholder:text-black placeholder:opacity-70
+                             focus:border-blue-600 focus:ring-blue-600 transition-all"
                 />
                 <button
                   type="button"
@@ -160,40 +158,42 @@ interface FormData {
               </div>
             </div>
 
-            {/* Role Selection */}
+            {/* Role */}
             <div className="space-y-2">
               <label className="text-gray-700">I am a:</label>
               <div className="flex gap-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="role"
                     value="jobseeker"
                     checked={formData.role === "jobseeker"}
                     onChange={handleChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-600"
+                    className="w-4 h-4 text-blue-600"
                   />
                   <span className="text-gray-700">Job Seeker</span>
                 </label>
 
-                <label className="flex items-center space-x-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="role"
                     value="recruiter"
                     checked={formData.role === "recruiter"}
                     onChange={handleChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-600"
+                    className="w-4 h-4 text-blue-600"
                   />
                   <span className="text-gray-700">Recruiter</span>
                 </label>
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700
+                         hover:from-blue-700 hover:to-blue-800 text-white rounded-lg
+                         shadow-lg hover:shadow-xl transition-all"
             >
               Create Account
             </button>
@@ -205,17 +205,18 @@ interface FormData {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
-                OR
-              </span>
+              <span className="px-4 bg-white text-gray-500">OR</span>
             </div>
           </div>
 
-          {/* Google Button */}
-     <button
+          {/* Google */}
+          <button
   type="button"
-  className="w-full h-12 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg transition-all flex items-center justify-center gap-3"
+  className="w-full h-12 border-2 border-gray-300 hover:border-gray-400
+             hover:bg-gray-50 rounded-lg transition-all
+             flex items-center justify-center gap-3"
 >
+  {/* Google Icon */}
   <svg
     className="w-5 h-5"
     viewBox="0 0 24 24"
@@ -239,8 +240,11 @@ interface FormData {
     />
   </svg>
 
-  Continue with Google
+  <span className="text-gray-700 font-medium">
+    Continue with Google
+  </span>
 </button>
+
 
           {/* Footer */}
           <p className="mt-8 text-center text-gray-600">
@@ -256,39 +260,58 @@ interface FormData {
       </div>
 
       {/* Right Side */}
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20" />
-        <img
-          src="https://images.unsplash.com/photo-1718220216044-006f43e3a9b1"
-          alt="Modern workspace"
-          className="w-full h-full object-cover opacity-30"
-        />
-          <div className="absolute inset-0 flex items-center justify-center px-12">
-          <div className="text-white text-center">
-            <h2 className="text-white mb-4">
-              Start Your Journey
-            </h2>
-            <p className="text-blue-100 text-lg max-w-md mx-auto">
-              Whether you're looking for your dream job or searching for top talent, TalentConnect makes it easy.
-            </p>
-            <div className="mt-12 space-y-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <p className="text-white mb-2">✓ Free to join</p>
-                <p className="text-blue-200">Create your account in minutes</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <p className="text-white mb-2">✓ Smart matching</p>
-                <p className="text-blue-200">Connect with the right opportunities</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <p className="text-white mb-2">✓ Secure & private</p>
-                <p className="text-blue-200">Your data is always protected</p>
-              </div>
-            </div>
-          </div>
+      {/* Right Side */}
+<div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 relative overflow-hidden">
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/20" />
+
+  {/* Background Image */}
+  <img
+    src="https://images.unsplash.com/photo-1718220216044-006f43e3a9b1"
+    alt="Workspace"
+    className="w-full h-full object-cover opacity-30"
+  />
+
+  {/* Text Content */}
+  <div className="absolute inset-0 z-10 flex items-center justify-center px-12">
+    <div className="text-white text-center max-w-md">
+      <h2 className="text-3xl font-semibold mb-4">
+        Start Your Journey
+      </h2>
+
+      <p className="text-blue-100 text-lg mb-8">
+        Whether you're looking for your dream job or searching for top talent,
+        TalentConnect helps you connect faster.
+      </p>
+
+      <div className="space-y-4">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20">
+          <p className="font-medium mb-1">✓ Free to join</p>
+          <p className="text-blue-200 text-sm">
+            Create your account in minutes
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20">
+          <p className="font-medium mb-1">✓ Smart matching</p>
+          <p className="text-blue-200 text-sm">
+            Find the right jobs or candidates
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20">
+          <p className="font-medium mb-1">✓ Secure & private</p>
+          <p className="text-blue-200 text-sm">
+            Your data is always protected
+          </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+    </div>
   );
 }
+
 export default RegisterPage;
