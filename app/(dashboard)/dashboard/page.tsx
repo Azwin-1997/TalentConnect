@@ -1,6 +1,5 @@
 "use client";
 
-import  DashboardSidebar  from "../../components/layout/DashboardSidebar";
 import { StatsCard } from "../../components/dashboard/StatsCard";
 import { JobCard } from "../../components/dashboard/JobCard";
 import { ApplicationsTable } from "../../components/dashboard/ApplicationsTable";
@@ -114,8 +113,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       
       <div className="flex">
-        {/* Sidebar */}
-        <DashboardSidebar />
+        
 
         {/* Main Content */}
         <main className="flex-1 p-8">
