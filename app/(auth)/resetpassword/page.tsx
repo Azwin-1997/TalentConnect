@@ -23,7 +23,6 @@ export default function ResetPasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isPasswordValid) {
-      console.log("Password reset successful");
       setIsSubmitted(true);
     }
   };
