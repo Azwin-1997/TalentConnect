@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import ApplicationSkeleton from "../../components/skeletons/ApplicationSkeleton";
+import ApplicationCard from "../../components/ApplicationCard";
+import { mockApplications } from "../../../data/mockApplications";
 
 export default function Applications() {
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ export default function Applications() {
   // simulate API call
   useEffect(() => {
     setTimeout(() => {
-      setApplications([]); // later replace with mock / real API
+      setApplications(mockApplications); // ✅ mock data
       setLoading(false);
     }, 1200);
   }, []);
@@ -35,13 +37,23 @@ export default function Applications() {
 
   // Data state
   return (
-    <div className="p-4 space-y-2">
-      <h2 className="text-lg font-semibold">Applications</h2>
-      <p className="text-sm text-gray-500">
+    <div className="p-4 space-y-4">
+      <h2 className="text-xl font-bold text-gray-900">Applications</h2>
+      <p className="text-sm font-black text-gray-500">
         Your job applications will appear here.
       </p>
 
-      {/* application cards will be mapped here */}
+      <div className="space-y-3">
+        {applications.map((app) => (
+          <ApplicationCard
+            key={app.id}
+            title={app.title}
+            company={app.company}
+            location={app.location}
+            status={app.status}
+          />
+        ))}
+      </div>
     </div>
   );
 }
