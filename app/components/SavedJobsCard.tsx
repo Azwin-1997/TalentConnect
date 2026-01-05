@@ -4,6 +4,7 @@ interface SavedJobCardProps {
   location: string;
   jobType: string;
   savedAt: string;
+  onRemove: () => void;
 }
 
 export default function SavedJobCard({
@@ -12,6 +13,7 @@ export default function SavedJobCard({
   location,
   jobType,
   savedAt,
+  onRemove,
 }: SavedJobCardProps) {
   return (
     <div className="rounded-lg border p-4 bg-white shadow-sm">
@@ -24,9 +26,18 @@ export default function SavedJobCard({
           {jobType}
         </span>
 
-        <span className="text-xs text-gray-400">
-          Saved {savedAt}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400">
+            Saved {savedAt}
+          </span>
+
+          <button
+            onClick={onRemove}
+            className="text-xs font-medium text-red-600 hover:underline"
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   );
