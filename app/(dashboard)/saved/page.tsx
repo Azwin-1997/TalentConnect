@@ -3,17 +3,30 @@
 import { useEffect, useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import SavedJobSkeleton from "../../components/skeletons/SavedJobSkeleton";
+import SavedJobCard from "../../components/SavedJobsCard";
+import { mockSavedJobs } from "../../../data/mockSavedJobs";
+
+interface SavedJob {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  jobType: string;
+  savedAt: string;
+}
 
 export default function SavedJobs() {
   const [loading, setLoading] = useState(true);
-  const [savedJobs, setSavedJobs] = useState<any[]>([]);
+  const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
 
   // simulate API call
   useEffect(() => {
-    setTimeout(() => {
-      setSavedJobs([]); // later replace with mock / real data
+    const timer = setTimeout(() => {
+      setSavedJobs(mockSavedJobs); // ✅ mock data
       setLoading(false);
     }, 1200);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Loading state
@@ -21,7 +34,7 @@ export default function SavedJobs() {
     return <SavedJobSkeleton />;
   }
 
-  //  Empty state
+  // Empty state
   if (savedJobs.length === 0) {
     return (
       <EmptyState
@@ -33,15 +46,26 @@ export default function SavedJobs() {
     );
   }
 
-  // Data state (placeholder)
+  // Data state
   return (
-    <div className="p-4 space-y-2">
-      <h2 className="text-lg font-semibold">Saved Jobs</h2>
-      <p className="text-sm text-gray-500">
-        Your saved jobs will appear here.
+    <div className="p-4 space-y-4">
+      <h2 className="text-xl font-bold text-gray-900">Saved Jobs</h2>
+      <p className="text-sm font-black text-gray-500">
+        Jobs you’ve saved for later.
       </p>
 
-      {/* SavedJobCard will be mapped here */}
+      <div className="space-y-3">
+        {savedJobs.map((job) => (
+          <SavedJobCard
+            key={job.id}
+            title={job.title}
+            company={job.company}
+            location={job.location}
+            jobType={job.jobType}
+            savedAt={job.savedAt}
+          />
+        ))}
+      </div>
     </div>
   );
 }
