@@ -55,17 +55,21 @@ export default function SavedJobs() {
       </p>
 
       <div className="space-y-3">
-        {savedJobs.map((job) => (
-          <SavedJobCard
-            key={job.id}
-            title={job.title}
-            company={job.company}
-            location={job.location}
-            jobType={job.jobType}
-            savedAt={job.savedAt}
-          />
-        ))}
-      </div>
+  {savedJobs.map((job) => (
+    <SavedJobCard
+      key={job.id}
+      title={job.title}
+      company={job.company}
+      location={job.location}
+      jobType={job.jobType}
+      savedAt={job.savedAt}
+      onRemove={() =>
+        setSavedJobs((prev) => prev.filter((j) => j.id !== job.id))
+      }
+    />
+  ))}
+</div>
+
     </div>
   );
 }
