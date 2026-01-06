@@ -1,20 +1,13 @@
+import { SavedJob } from "@/app/types/savedJob";
+
 interface SavedJobCardProps {
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  savedAt: string;
-  onRemove: () => void;
+  job: SavedJob;
+  onRemove: (id: number) => void;
 }
 
-export default function SavedJobCard({
-  title,
-  company,
-  location,
-  jobType,
-  savedAt,
-  onRemove,
-}: SavedJobCardProps) {
+export default function SavedJobCard({ job, onRemove }: SavedJobCardProps) {
+  const { id, title, company, location, jobType, savedAt } = job;
+
   return (
     <div className="rounded-lg border p-4 bg-white shadow-sm">
       <h3 className="text-xl font-bold text-gray-900">{title}</h3>
@@ -32,7 +25,7 @@ export default function SavedJobCard({
           </span>
 
           <button
-            onClick={onRemove}
+            onClick={() => onRemove(id)}
             className="text-xs font-medium text-red-600 hover:underline"
           >
             Remove
