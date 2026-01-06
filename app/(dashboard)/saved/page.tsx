@@ -4,30 +4,28 @@ import { useEffect, useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import SavedJobSkeleton from "../../components/skeletons/SavedJobSkeleton";
 import SavedJobCard from "../../components/SavedJobsCard";
-import { mockSavedJobs } from "../../../data/mockSavedJobs";
-
-interface SavedJob {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  savedAt: string;
-}
+import { SavedJob } from "@/app/types/savedJob";
+import { savedJobsService } from "@/app/lib/savedJobsService";
 
 export default function SavedJobs() {
   const [loading, setLoading] = useState(true);
   const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
 
-  // simulate API call
+  // load saved jobs (simulate API delay)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSavedJobs(mockSavedJobs); // ✅ mock data
+      const jobs = savedJobsService.getAll();
+      setSavedJobs(jobs);
       setLoading(false);
     }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleRemove = (id: number) => {
+    const updated = savedJobsService.remove(id);
+    setSavedJobs(updated);
+  };
 
   // Loading state
   if (loading) {
@@ -55,21 +53,14 @@ export default function SavedJobs() {
       </p>
 
       <div className="space-y-3">
-  {savedJobs.map((job) => (
-    <SavedJobCard
-      key={job.id}
-      title={job.title}
-      company={job.company}
-      location={job.location}
-      jobType={job.jobType}
-      savedAt={job.savedAt}
-      onRemove={() =>
-        setSavedJobs((prev) => prev.filter((j) => j.id !== job.id))
-      }
-    />
-  ))}
-</div>
-
+        {savedJobs.map((job) => (
+          <SavedJobCard
+            key={job.id}
+            job={job}
+            onRemove={handleRemove}
+          />
+        ))}
+      </div>
     </div>
   );
 }
