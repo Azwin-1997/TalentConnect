@@ -1,4 +1,4 @@
-import { SavedJob } from "../types/savedJob";
+import { SavedJob } from "@/app/types/savedJob";
 
 const STORAGE_KEY = "saved_jobs";
 
@@ -25,10 +25,13 @@ export const savedJobsService = {
     return jobs;
   },
 
-  remove(jobId: number): SavedJob[] {
-    const jobs = this.getAll();
-    const updated = jobs.filter((job) => job.id !== jobId);
+  remove(id: number): SavedJob[] {
+    const updated = this.getAll().filter((job) => job.id !== id);
     this.saveAll(updated);
     return updated;
+  },
+
+  isSaved(id: number): boolean {
+    return this.getAll().some((job) => job.id === id);
   },
 };

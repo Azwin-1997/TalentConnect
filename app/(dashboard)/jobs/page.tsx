@@ -3,28 +3,44 @@
 import { useEffect, useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import JobListSkeleton from "../../components/JobListSkeleton";
+import JobCard from "../../components/JobCard";
+import { SavedJob } from "@/app/types/savedJob";
 
 export default function JobsPage() {
-  // STEP 1: UI states
   const [loading, setLoading] = useState(true);
-  const [hasJobs, setHasJobs] = useState(false);
+  const [jobs, setJobs] = useState<SavedJob[]>([]);
 
-  // STEP 2: fake loading
   useEffect(() => {
     const timer = setTimeout(() => {
+      setJobs([
+        {
+          id: 1,
+          title: "Frontend Developer",
+          company: "TechCorp",
+          location: "Remote",
+          jobType: "Full-time",
+          savedAt: "",
+        },
+        {
+          id: 2,
+          title: "React Engineer",
+          company: "InnovateX",
+          location: "Bangalore",
+          jobType: "Full-time",
+          savedAt: "",
+        },
+      ]);
       setLoading(false);
     }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // STEP 3: loading → skeleton
   if (loading) {
     return <JobListSkeleton />;
   }
 
-  // STEP 4: empty → empty state
-  if (!hasJobs) {
+  if (jobs.length === 0) {
     return (
       <EmptyState
         title="No jobs available"
@@ -35,13 +51,11 @@ export default function JobsPage() {
     );
   }
 
-  // STEP 5: data → real UI (dummy for now)
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border p-4">
-        <h3 className="font-semibold">Frontend Developer</h3>
-        <p className="text-sm text-gray-500">TechCorp • Remote</p>
-      </div>
+      {jobs.map((job) => (
+        <JobCard key={job.id} job={job} />
+      ))}
     </div>
   );
 }
