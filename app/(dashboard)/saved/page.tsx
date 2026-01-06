@@ -6,6 +6,7 @@ import SavedJobSkeleton from "../../components/skeletons/SavedJobSkeleton";
 import SavedJobCard from "../../components/SavedJobsCard";
 import { SavedJob } from "@/app/types/savedJob";
 import { savedJobsService } from "@/app/lib/savedJobsService";
+import { toast } from "sonner";
 
 export default function SavedJobs() {
   const [loading, setLoading] = useState(true);
@@ -23,9 +24,11 @@ export default function SavedJobs() {
   }, []);
 
   const handleRemove = (id: number) => {
-    const updated = savedJobsService.remove(id);
-    setSavedJobs(updated);
-  };
+  const updated = savedJobsService.remove(id);
+  setSavedJobs(updated);
+  toast.success("Job removed from saved");
+};
+
 
   // Loading state
   if (loading) {
