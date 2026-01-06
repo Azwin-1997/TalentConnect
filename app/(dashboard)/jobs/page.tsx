@@ -6,6 +6,8 @@ import JobListSkeleton from "../../components/JobListSkeleton";
 import JobCard from "../../components/JobCard";
 import { SavedJob } from "@/app/types/savedJob";
 
+
+
 export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<SavedJob[]>([]);

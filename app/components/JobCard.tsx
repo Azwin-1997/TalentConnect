@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { SavedJob } from "@/app/types/savedJob";
 import { savedJobsService } from "@/app/lib/savedJobsService";
@@ -16,18 +17,21 @@ export default function JobCard({ job }: JobCardProps) {
     setIsSaved(savedJobsService.isSaved(job.id));
   }, [job.id]);
 
-  const handleToggleSave = () => {
-    if (isSaved) {
-      savedJobsService.remove(job.id);
-      setIsSaved(false);
-    } else {
-      savedJobsService.add({
-        ...job,
-        savedAt: "Just now",
-      });
-      setIsSaved(true);
-    }
-  };
+const handleToggleSave = () => {
+  if (isSaved) {
+    savedJobsService.remove(job.id);
+    setIsSaved(false);
+    toast.success("Job removed from saved");
+  } else {
+    savedJobsService.add({
+      ...job,
+      savedAt: "Just now",
+    });
+    setIsSaved(true);
+    toast.success("Job saved");
+  }
+};
+
 
   return (
     <div className="rounded-lg border p-4 bg-white shadow-sm">
