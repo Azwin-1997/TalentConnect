@@ -31,8 +31,11 @@ export function JobCard({
 
           {/* Job Info */}
           <div>
-            <h3 className="text-gray-900 mb-1">{title}</h3>
-            <p className="text-gray-700 mb-2">{company}</p>
+            <h3 className="text-xl font-bold text-black leading-snug mb-1">
+              {title}
+            </h3>
+
+            <p className="text-grey-700 mb-2">{company}</p>
             <div className="flex flex-wrap items-center gap-3 text-gray-600">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
@@ -52,11 +55,10 @@ export function JobCard({
 
         {/* Bookmark Button */}
         <button
-          className={`p-2 rounded-lg transition-colors ${
-            isSaved
+          className={`p-2 rounded-lg transition-colors ${isSaved
               ? "bg-blue-50 text-blue-600"
               : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          }`}
+            }`}
         >
           <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />
         </button>
@@ -71,27 +73,27 @@ export function JobCard({
 
       {/* Actions */}
       {/* Actions */}
-<div className="flex gap-3">
-  <button
-    className="flex-1 h-10 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700
+      <div className="flex gap-3">
+        <button
+          className="flex-1 h-10 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700
                text-white font-medium
                hover:from-blue-700 hover:to-blue-800
                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                transition-all"
-  >
-    Apply Now
-  </button>
+        >
+          Apply Now
+        </button>
 
-  <button
-    className="h-10 px-4 rounded-lg border border-gray-300
+        <button
+          className="h-10 px-4 rounded-lg border border-gray-300
                text-gray-700 font-medium
                hover:bg-gray-50
                focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2
                transition-all"
-  >
-    View Details
-  </button>
-</div>
+        >
+          View Details
+        </button>
+      </div>
 
     </div>
   );
