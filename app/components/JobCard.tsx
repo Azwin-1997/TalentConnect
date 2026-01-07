@@ -1,58 +1,34 @@
-"use client";
-
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
 import { SavedJob } from "@/app/types/savedJob";
-import { savedJobsService } from "@/app/lib/savedJobsService";
+import { useSavedJobs } from "@/app/context/SavedJobsContext";
+import { toast } from "sonner";
 
-interface JobCardProps {
-  job: SavedJob;
-}
+export default function JobCard({ job }: { job: SavedJob }) {
+  const { saveJob, removeJob, isSaved } = useSavedJobs();
+  const saved = isSaved(job.id);
 
-export default function JobCard({ job }: JobCardProps) {
-  const [isSaved, setIsSaved] = useState(false);
-
-  // check saved state on load
-  useEffect(() => {
-    setIsSaved(savedJobsService.isSaved(job.id));
-  }, [job.id]);
-
-const handleToggleSave = () => {
-  if (isSaved) {
-    savedJobsService.remove(job.id);
-    setIsSaved(false);
-    toast.success("Job removed from saved");
-  } else {
-    savedJobsService.add({
-      ...job,
-      savedAt: "Just now",
-    });
-    setIsSaved(true);
-    toast.success("Job saved");
-  }
-};
-
+  const handleToggleSave = () => {
+    if (saved) {
+      removeJob(job.id);
+      toast.success("Job removed from saved");
+    } else {
+      saveJob({ ...job, savedAt: "Just now" });
+      toast.success("Job saved");
+    }
+  };
 
   return (
     <div className="rounded-lg border p-4 bg-white shadow-sm">
-      <h3 className="text-xl font-bold text-gray-900">{job.title}</h3>
+      <h3 className="text-xl font-bold text-black">{job.title}</h3>
       <p className="text-sm text-gray-600">{job.company}</p>
-      <p className="text-sm text-gray-500">{job.location}</p>
 
-      <div className="mt-2 flex items-center justify-between">
-        <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">
-          {job.jobType}
-        </span>
-
-        <button
-          onClick={handleToggleSave}
-          className={`text-sm font-medium ${
-            isSaved ? "text-green-600" : "text-blue-600"
-          }`}
-        >
-          {isSaved ? "Saved" : "Save"}
-        </button>
-      </div>
+      <button
+        onClick={handleToggleSave}
+        className={`text-sm ${
+          saved ? "text-green-600" : "text-blue-600"
+        }`}
+      >
+        {saved ? "Saved" : "Save"}
+      </button>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { StatsCard } from "../../components/dashboard/StatsCard";
-import { JobCard } from "../../components/dashboard/JobCard";
+import { JobCard } from "../../components/dashboard/JobCardUI";
 import { ApplicationsTable } from "../../components/dashboard/ApplicationsTable";
 import { ProfilePanel } from "../../components/dashboard/ProfilePanel";
 import { Eye, FileText, UserCheck, MessageSquare, TrendingUp } from "lucide-react";
