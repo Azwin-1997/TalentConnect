@@ -1,9 +1,16 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
 // Routes
@@ -19,7 +26,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 
-// 404 handler
+// 404 handler (KEEP AT END)
 app.use((req, res) => {
   res.status(404).json({
     message: "Route not found"

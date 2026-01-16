@@ -2,6 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
+/* =========================
+   REGISTER
+========================= */
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -15,8 +18,7 @@ const register = async (req, res) => {
       return res.status(409).json({ message: "Email already registered" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
@@ -37,18 +39,19 @@ const register = async (req, res) => {
   }
 };
 
+/* =========================
+   LOGIN
+========================= */
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Validate input
     if (!email || !password) {
       return res.status(400).json({
         message: "Email and password are required"
       });
     }
 
-    // 2. Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -56,7 +59,6 @@ const login = async (req, res) => {
       });
     }
 
-    // 3. Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -64,14 +66,12 @@ const login = async (req, res) => {
       });
     }
 
-    // 4. Generate JWT
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || "secretkey",
       { expiresIn: "1d" }
     );
 
-    // 5. Send response
     res.status(200).json({
       message: "Login successful",
       token,
@@ -86,7 +86,18 @@ const login = async (req, res) => {
   }
 };
 
+/* =========================
+   LOGOUT (JWT – STATELESS)
+========================= */
+const logout = (req, res) => {
+  // JWT logout is handled on client side by removing token
+  return res.status(200).json({
+    message: "Logged out successfully"
+  });
+};
+
 module.exports = {
   register,
-  login
+  login,
+  logout
 };
