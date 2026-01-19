@@ -10,4 +10,7 @@ router.post("/login", login);
 // 🔐 Protected logout route
 router.post("/logout", authMiddleware, logout);
 
+router.post("/refresh", refreshAccessToken);
+
+
 module.exports = router;

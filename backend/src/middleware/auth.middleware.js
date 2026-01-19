@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {
-
   try {
     // 1. Get Authorization header
     const authHeader = req.headers.authorization;
@@ -19,13 +18,15 @@ const authMiddleware = (req, res, next) => {
     // 4. Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "secretkey"
+      process.env.JWT_SECRET
     );
 
-    // 5. Attach user info to request
-    req.user = { id: decoded.userId };
+    // ✅ FIXED: Match token payload
+    req.user = {
+      id: decoded.id
+    };
 
-    // 6. Continue to next middleware / controller
+    // 6. Continue
     next();
   } catch (error) {
     return res.status(401).json({
