@@ -12,8 +12,12 @@ const getCurrentUser = async (req, res) => {
       });
     }
 
-    res.status(200).json(user);
+    res.status(200).json({
+      success: true,
+      user
+    });
   } catch (error) {
+    console.error("getCurrentUser error:", error);
     res.status(500).json({
       message: "Server error"
     });
