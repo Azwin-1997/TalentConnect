@@ -23,6 +23,7 @@ const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const profileRoutes = require("./routes/profile.routes"); 
 const recruiterRoutes = require("./routes/recruiter.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 // Health check
 app.get("/health", (req, res) => {
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/admin", adminRoutes);
 
 // 404 handler
 app.use((req, res) => {
