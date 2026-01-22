@@ -23,7 +23,9 @@ const authMiddleware = (req, res, next) => {
 
     // ✅ FIXED: Match token payload
     req.user = {
-      id: decoded.id
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role
     };
 
     // 6. Continue

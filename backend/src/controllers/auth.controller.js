@@ -69,7 +69,8 @@ const login = async (req, res) => {
 
     const accessToken = generateAccessToken({
       id: user._id,
-      email: user.email
+      email: user.email,
+      role: user.role
     });
 
     const refreshToken = generateRefreshToken({
