@@ -7,19 +7,31 @@ const {
 } = require("../utils/token");
 
 /* =========================
-   REGISTER
+   REGISTER (AUTO LOGIN)
 ========================= */
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role = "candidate" } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({
+        message: "All fields are required"
+      });
+    }
+
+    // ✅ validate role (DO NOT TRANSFORM)
+    const allowedRoles = ["candidate", "recruiter", "admin"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        message: "Invalid role"
+      });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "Email already registered" });
+      return res.status(409).json({
+        message: "Email already registered"
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,15 +39,38 @@ const register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role // ✅ lowercase, schema-safe
+    });
+
+    /* ---------- AUTO LOGIN ---------- */
+    const accessToken = generateAccessToken({
+      id: user._id,
+      email: user.email,
+      role: user.role
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: user._id
+    });
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
     });
 
     res.status(201).json({
       message: "User registered successfully",
+      accessToken,
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -45,7 +80,7 @@ const register = async (req, res) => {
 };
 
 /* =========================
-   LOGIN (ACCESS + REFRESH)
+   LOGIN
 ========================= */
 const login = async (req, res) => {
   try {
@@ -59,12 +94,16 @@ const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        message: "Invalid credentials"
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        message: "Invalid credentials"
+      });
     }
 
     const accessToken = generateAccessToken({
@@ -92,7 +131,8 @@ const login = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -129,14 +169,15 @@ const refreshAccessToken = async (req, res) => {
 
     const newAccessToken = generateAccessToken({
       id: user._id,
-      email: user.email
+      email: user.email,
+      role: user.role
     });
 
     res.status(200).json({
       accessToken: newAccessToken
     });
   } catch (error) {
-    return res.status(403).json({
+    res.status(403).json({
       message: "Refresh token expired or invalid"
     });
   }
@@ -158,9 +199,10 @@ const logout = async (req, res) => {
     }
 
     res.clearCookie("refreshToken");
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({
+      message: "Logged out successfully"
+    });
   } catch (error) {
-    console.error("Logout error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
