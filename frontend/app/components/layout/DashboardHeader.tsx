@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Search, Bell, ChevronDown, User } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function DashboardHeader() {
+  const { user, logout } = useAuth();
   const [notificationCount] = useState(3);
   const [open, setOpen] = useState(false);
 
@@ -52,7 +54,7 @@ export default function DashboardHeader() {
                 <User className="w-4 h-4" />
               </div>
               <span className="hidden sm:inline text-gray-700">
-                John Doe
+                {user?.name ?? ""}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -61,13 +63,16 @@ export default function DashboardHeader() {
               <div className="absolute right-0 mt-2 w-48 bg-white border
                               border-gray-200 rounded-lg shadow-lg">
                 <div className="px-3 py-2 border-b">
-                  <p className="text-sm font-medium">John Doe</p>
-                  <p className="text-xs text-gray-500">john@example.com</p>
+                  <p className="text-sm font-medium">{user?.name ?? ""}</p>
+                  <p className="text-xs text-gray-500">{user?.email ?? ""}</p>
                 </div>
 
-                <button className="w-full text-left px-3 py-2 hover:bg-gray-50">
+                <a
+                  href="/profile"
+                  className="block w-full text-left px-3 py-2 hover:bg-gray-50"
+                >
                   Profile
-                </button>
+                </a>
                 <button className="w-full text-left px-3 py-2 hover:bg-gray-50">
                   Settings
                 </button>
@@ -76,7 +81,11 @@ export default function DashboardHeader() {
                 </button>
 
                 <div className="border-t">
-                  <button className="w-full text-left px-3 py-2 text-red-600 hover:bg-gray-50">
+                  <button
+                    type="button"
+                    onClick={() => { setOpen(false); logout(); }}
+                    className="w-full text-left px-3 py-2 text-red-600 hover:bg-gray-50"
+                  >
                     Logout
                   </button>
                 </div>

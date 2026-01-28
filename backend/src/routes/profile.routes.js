@@ -15,7 +15,7 @@ const {
 router.get(
   "/me",
   authMiddleware,
-  authorize("candidate", "admin"),
+  authorize("candidate", "HR"),
   getMyProfile
 );
 
