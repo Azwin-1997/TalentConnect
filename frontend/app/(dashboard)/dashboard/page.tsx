@@ -1,13 +1,54 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+import { useAuth } from "../../context/AuthContext";
+
 import { StatsCard } from "../../components/dashboard/StatsCard";
 import { JobCard } from "../../components/dashboard/JobCardUI";
 import { ApplicationsTable } from "../../components/dashboard/ApplicationsTable";
 import { ProfilePanel } from "../../components/dashboard/ProfilePanel";
-import { Eye, FileText, UserCheck, MessageSquare, TrendingUp } from "lucide-react";
+
+import {
+  Eye,
+  FileText,
+  UserCheck,
+  MessageSquare,
+  TrendingUp
+} from "lucide-react";
 
 export default function DashboardPage() {
-  // Mock data for stats
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  /* ============================
+     PROTECT ROUTE + ROLE
+  ============================ */
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    // Only candidates use this dashboard; recruiters and admins go elsewhere
+    if (user.role !== "candidate") {
+      router.push(user.role === "recruiter" ? "/hr" : "/admin");
+    }
+  }, [user, loading, router]);
+
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  /* ============================
+     MOCK DATA (TEMP)
+  ============================ */
   const stats = [
     {
       title: "Profile Views",
@@ -39,7 +80,6 @@ export default function DashboardPage() {
     },
   ];
 
-  // Mock data for recommended jobs
   const recommendedJobs = [
     {
       title: "Senior Frontend Developer",
@@ -70,7 +110,6 @@ export default function DashboardPage() {
     },
   ];
 
-  // Mock data for recent applications
   const recentApplications = [
     {
       id: "1",
@@ -109,52 +148,51 @@ export default function DashboardPage() {
     },
   ];
 
+  /* ============================
+     UI
+  ============================ */
   return (
     <div className="min-h-screen bg-gray-50">
-      
       <div className="flex">
-        
-
-        {/* Main Content */}
         <main className="flex-1 p-8">
           <div className="max-w-7xl mx-auto">
-            {/* Welcome Section */}
+            {/* Welcome */}
             <div className="mb-8">
-              <h1 className="text-gray-900 mb-2">Welcome back, John! 👋</h1>
+              <h1 className="text-gray-900 mb-2">
+                Welcome back, {user.name}! 👋
+              </h1>
               <p className="text-gray-600">
                 Here's what's happening with your profile
               </p>
             </div>
 
-            {/* Stats Grid */}
+            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {stats.map((stat, index) => (
-                <StatsCard
-                  key={index}
-                  title={stat.title}
-                  value={stat.value}
-                  icon={stat.icon}
-                  change={stat.change}
-                  changeType={stat.changeType}
-                />
+                <StatsCard key={index} {...stat} />
               ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Main Content */}
+              {/* Left */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Recommended Jobs Section */}
+                {/* Recommended Jobs */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-gray-900 mb-1">Recommended Jobs</h2>
-                      <p className="text-gray-600">Based on your profile and preferences</p>
+                      <h2 className="text-gray-900 mb-1">
+                        Recommended Jobs
+                      </h2>
+                      <p className="text-gray-600">
+                        Based on your profile and preferences
+                      </p>
                     </div>
                     <button className="text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
                       View All
                       <TrendingUp className="w-4 h-4" />
                     </button>
                   </div>
+
                   <div className="space-y-4">
                     {recommendedJobs.map((job, index) => (
                       <JobCard key={index} {...job} />
@@ -162,22 +200,27 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Recent Applications Section */}
+                {/* Applications */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-gray-900 mb-1">Recent Applications</h2>
-                      <p className="text-gray-600">Track your application status</p>
+                      <h2 className="text-gray-900 mb-1">
+                        Recent Applications
+                      </h2>
+                      <p className="text-gray-600">
+                        Track your application status
+                      </p>
                     </div>
                     <button className="text-blue-600 hover:text-blue-700 transition-colors">
                       View All
                     </button>
                   </div>
+
                   <ApplicationsTable applications={recentApplications} />
                 </div>
               </div>
 
-              {/* Right Column - Profile Panel */}
+              {/* Right */}
               <div className="lg:col-span-1">
                 <ProfilePanel />
               </div>
