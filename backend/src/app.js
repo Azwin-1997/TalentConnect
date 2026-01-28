@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const swaggerUi = require("swagger-ui-express");
+const openapiSpec = require("./swagger/openapi.json");
 
 const app = express();
 
@@ -17,6 +19,12 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Swagger API docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec, {
+  customSiteTitle: "TalentConnect API",
+  customCss: ".swagger-ui .topbar { display: none }"
+}));
 
 // Routes
 const authRoutes = require("./routes/auth.routes");
