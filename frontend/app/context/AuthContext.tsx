@@ -119,6 +119,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setUser(data.user);
+
+    // If candidate, ensure profile exists; otherwise redirect to complete profile
+    if (data.user.role === "candidate") {
+      try {
+        // Lazy-load profile to check existence
+        // Import here to avoid cycle in some setups
+        const { getMyProfile } = await import("../services/profile.service");
+        await getMyProfile();
+        router.push("/dashboard");
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          router.push("/profile");
+        } else {
+          router.push("/dashboard");
+        }
+      }
+      return;
+    }
+
     redirectByRole(data.user.role);
   };
 

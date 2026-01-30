@@ -24,16 +24,29 @@ const getMyProfile = async (req, res) => {
 ========================= */
 const upsertMyProfile = async (req, res) => {
   try {
-    const { skills, experience, resumeUploaded, placementStatus } = req.body;
+    const {
+      skills,
+      experience,
+      resumeUploaded,
+      placementStatus,
+      resumeFileId,
+      resumeFilename,
+      resumeMime,
+    } = req.body;
+
+    // Normalize payload and build update object
+    const update = {};
+    if (typeof skills !== "undefined") update.skills = skills;
+    if (typeof experience !== "undefined") update.experience = experience;
+    if (typeof resumeUploaded !== "undefined") update.resumeUploaded = resumeUploaded;
+    if (typeof placementStatus !== "undefined") update.placementStatus = placementStatus;
+    if (typeof resumeFileId !== "undefined") update.resumeFileId = resumeFileId;
+    if (typeof resumeFilename !== "undefined") update.resumeFilename = resumeFilename;
+    if (typeof resumeMime !== "undefined") update.resumeMime = resumeMime;
 
     const profile = await Profile.findOneAndUpdate(
       { user: req.user.id },
-      {
-        skills,
-        experience,
-        resumeUploaded,
-        placementStatus
-      },
+      { $set: update, $setOnInsert: { user: req.user.id } },
       { new: true, upsert: true }
     );
 
