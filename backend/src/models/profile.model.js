@@ -18,17 +18,32 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: ""
     },
+  resumeFileId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "resumes.files",
+    default: null
+  },
 
-    resumeUploaded: {
-      type: Boolean,
-      default: false
-    },
+  resumeFilename: {
+    type: String,
+    default: ""
+  },
 
-    placementStatus: {
-      type: String,
-      enum: ["training", "ready", "placed"],
-      default: "training"
-    }
+  resumeMime: {
+    type: String,
+    default: ""
+  },
+
+  resumeUploaded: {
+    type: Boolean,
+    default: false
+  },
+
+  placementStatus: {
+    type: String,
+    enum: ["training", "ready", "placed"],
+    default: "training"
+  }
   },
   { timestamps: true }
 );

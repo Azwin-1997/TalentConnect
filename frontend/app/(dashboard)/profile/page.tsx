@@ -1,6 +1,8 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
+import api from "../../lib/axios";
+import { upsertMyProfile } from "../../services/profile.service";
 import {
   Camera,
   MapPin,
@@ -60,6 +62,8 @@ export default function ProfilePage() {
   const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [resume, setResume] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [resumeKey, setResumeKey] = useState<string | null>(null);
   const [portfolioLinks, setPortfolioLinks] = useState<string[]>([]);
 
   /* ================= HANDLERS ================= */
@@ -71,15 +75,8 @@ export default function ProfilePage() {
   };
 
   const handleSaveAll = () => {
-    console.log({
-      basicInfo,
-      skills,
-      workExperience,
-      education,
-      resume,
-      portfolioLinks,
-    });
-    alert("Profile saved successfully");
+    // Currently only resume is saved via presigned flow.
+    alert("Profile saved (resume handled separately).");
   };
 
   const handleCancel = () => window.location.reload();
@@ -352,12 +349,47 @@ export default function ProfilePage() {
               <span className="text-gray-900 font-medium">
                 {resume.name}
               </span>
-              <button
-                onClick={() => setResume(null)}
-                className="text-red-600 flex items-center gap-1"
-              >
-                <X size={16} /> Remove
-              </button>
+              <div className="flex items-center gap-2">
+                {!resumeKey && (
+                  <button
+                    onClick={async () => {
+                      // Upload resume via presigned URL
+                      try {
+                        setUploading(true);
+                        const form = new FormData();
+                        form.append("resume", resume);
+
+                        // Server-side upload (bypasses browser->S3 CORS)
+                        const res = await api.post("/upload/resume", form);
+                        const { fileId } = res.data;
+
+                        // Backend already saved profile metadata; store returned file id locally
+                        setResumeKey(fileId);
+                        alert("Resume uploaded successfully");
+                      } catch (err) {
+                        console.error(err);
+                        alert("Resume upload failed");
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                    className="bg-blue-600 text-white font-semibold px-3 py-1 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                  >
+                    <Upload size={14} />
+                    {uploading ? "Uploading..." : "Upload"}
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    setResume(null);
+                    setResumeKey(null);
+                  }}
+                  className="text-red-600 flex items-center gap-1"
+                >
+                  <X size={16} /> Remove
+                </button>
+              </div>
             </div>
           )}
         </div>
