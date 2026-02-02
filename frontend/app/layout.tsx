@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 
 import { AuthProvider } from "./context/AuthContext";
 import { SavedJobsProvider } from "@/app/context/SavedJobsContext";
-
+// import "./styles/tailwind.css";
 import "./globals.css";
 
 const geistSans = Geist({
