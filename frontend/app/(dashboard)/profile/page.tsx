@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getMyProfile, upsertMyProfile, ProfilePayload } from "../../services/profile.service";
 import {
   Camera,
   MapPin,
@@ -17,11 +18,13 @@ import {
   Calendar,
   Building2,
 } from "lucide-react";
+import axios from "axios";
 
 
 /* ================= TYPES ================= */
 
 interface WorkExperience {
+  _id?: string;
   id: string;
   title: string;
   company: string;
@@ -45,6 +48,8 @@ export default function ProfilePage() {
   const [isEditingBasic, setIsEditingBasic] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newPortfolioLink, setNewPortfolioLink] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [existingResume, setExistingResume] = useState<{ name: string, id: string } | null>(null);
 
   const [basicInfo, setBasicInfo] = useState({
     name: "",
@@ -55,12 +60,50 @@ export default function ProfilePage() {
     bio: "",
   });
 
-  
+
   const [skills, setSkills] = useState<string[]>([]);
   const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [resume, setResume] = useState<File | null>(null);
   const [portfolioLinks, setPortfolioLinks] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getMyProfile();
+        if (data) {
+          // Fill Basic Info
+          setBasicInfo({
+            name: data.name || "",
+            title: data.title || "",
+            location: data.location || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            bio: data.bio || "",
+          });
+
+          // Fill Arrays
+          setSkills(data.skills || []);
+          setWorkExperience(data.workExperience || []);
+          setEducation(data.education || []);
+          setPortfolioLinks(data.portfolioLinks || []);
+
+          // === NEW: Handle Resume Fill ===
+          if (data.resumeUploaded && data.resumeFilename) {
+            setExistingResume({
+              name: data.resumeFilename,
+              id: data.resumeFileId,
+            });
+          } 
+        }
+      } catch (error) {
+        console.error("Profile not found or fetch error. User can create a new one.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   /* ================= HANDLERS ================= */
 
@@ -70,19 +113,65 @@ export default function ProfilePage() {
     setNewSkill("");
   };
 
-  const handleSaveAll = () => {
-    console.log({
-      basicInfo,
-      skills,
-      workExperience,
-      education,
-      resume,
-      portfolioLinks,
-    });
-    alert("Profile saved successfully");
+  const handleResumeUpload = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const token = localStorage.getItem("token");
+      // Note: Adjust URL to your upload route
+      const res = await axios.post("http://localhost:5000/api/upload/resume", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      // Update state with the newly uploaded info from backend
+      setExistingResume({
+        name: res.data.profile.resumeFilename,
+        id: res.data.fileId
+      });
+      setResume(null); // Clear the temporary file state
+      alert("Resume uploaded successfully!");
+    } catch (error) {
+      alert("Resume upload failed.");
+    }
+  };
+
+  const handleSaveAll = async () => {
+    try {
+      // Construct the payload using your ProfilePayload type
+      const payload: ProfilePayload = {
+        ...basicInfo,
+        skills,
+        workExperience,
+        education,
+        portfolioLinks,
+        // resume fields can be added here once upload logic is ready
+      };
+
+      await upsertMyProfile(payload);
+
+      alert("Profile updated successfully!");
+      setIsEditingBasic(false);
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+      alert("Error saving profile. Please try again.");
+    }
   };
 
   const handleCancel = () => window.location.reload();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-lg font-semibold text-gray-600 animate-pulse">
+          Loading Talent Connect Profile...
+        </div>
+      </div>
+    );
+  }
 
   /* ================= UI ================= */
 
@@ -225,7 +314,7 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {workExperience.map((exp, index) => (
                 <div
-                  key={exp.id}
+                  key={exp._id || exp.id || index}
                   className={`${index !== 0 ? "pt-6 border-t border-gray-200" : ""}`}
                 >
                   <div className="flex items-start gap-4">
@@ -323,45 +412,57 @@ export default function ProfilePage() {
         </div>
 
         {/* ================= RESUME ================= */}
+        {/* ================= RESUME ================= */}
         <div className="bg-white border border-gray-300 rounded-xl p-8 space-y-4">
           <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <FileText size={20} className="text-blue-600" />
             Resume
           </h3>
 
-          <label className="block border-2 border-dashed border-gray-400 rounded-xl p-6 cursor-pointer hover:border-blue-500 transition">
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              className="hidden"
-              onChange={(e) => setResume(e.target.files?.[0] || null)}
-            />
-            <div className="text-center space-y-2">
-              <Upload size={32} className="mx-auto text-blue-600" />
-              <p className="text-gray-900 font-medium">
-                Click to upload your resume
-              </p>
-              <p className="text-gray-700 text-sm">
-                PDF or DOC (max 5MB)
-              </p>
-            </div>
-          </label>
+          {/* 1. If NO resume is in DB and NO new file is selected, show UPLOAD BOX */}
+          {!existingResume && !resume && (
+            <label className="block border-2 border-dashed border-gray-400 rounded-xl p-6 cursor-pointer hover:border-blue-500 transition text-center">
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleResumeUpload(file);
+                }}
+              />
+              <Upload size={32} className="mx-auto text-blue-600 mb-2" />
+              <p className="text-gray-900 font-medium">Click to upload your resume</p>
+            </label>
+          )}
 
-          {resume && (
-            <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
-              <span className="text-gray-900 font-medium">
-                {resume.name}
-              </span>
+          {/* 2. Show the SAVED RESUME from MongoDB (This is what was missing) */}
+          {existingResume && (
+            <div className="flex justify-between items-center bg-gray-50 border border-gray-200 p-4 rounded-lg">
+              <div className="flex items-center gap-3">
+                <FileText className="text-blue-600" size={24} />
+                <div>
+                  <p className="text-gray-900 font-medium">{existingResume.name}</p>
+                  <p className="text-xs text-green-600">✓ Uploaded and Saved</p>
+                </div>
+              </div>
               <button
-                onClick={() => setResume(null)}
-                className="text-red-600 flex items-center gap-1"
+                onClick={() => setExistingResume(null)}
+                className="text-gray-400 hover:text-red-600 transition"
               >
-                <X size={16} /> Remove
+                <X size={20} />
               </button>
             </div>
           )}
-        </div>
 
+          {/* 3. Show a "New File" selection (if you haven't uploaded it yet) */}
+          {resume && !existingResume && (
+            <div className="flex justify-between items-center bg-blue-50 border border-blue-200 p-4 rounded-lg">
+              <span className="text-blue-900 font-medium italic">{resume.name} (Ready to upload)</span>
+              <button onClick={() => setResume(null)} className="text-red-600"><X size={18} /></button>
+            </div>
+          )}
+        </div>
         {/* ================= PORTFOLIO ================= */}
         <div className="bg-white border border-gray-300 rounded-xl p-8 space-y-4">
           <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
