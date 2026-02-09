@@ -29,8 +29,9 @@ interface WorkExperience {
   title: string;
   company: string;
   location: string;
-  startDate: string;
-  endDate: string;
+  startDate: string; // Will store "YYYY-MM"
+  endDate: string;   // Will store "YYYY-MM" or ""
+  isCurrent: boolean; // NEW: To handle "Present"
   description: string;
 }
 
@@ -50,6 +51,7 @@ export default function ProfilePage() {
   const [newPortfolioLink, setNewPortfolioLink] = useState("");
   const [loading, setLoading] = useState(true);
   const [existingResume, setExistingResume] = useState<{ name: string, id: string } | null>(null);
+  const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
 
   const [basicInfo, setBasicInfo] = useState({
     name: "",
@@ -94,7 +96,7 @@ export default function ProfilePage() {
               name: data.resumeFilename,
               id: data.resumeFileId,
             });
-          } 
+          }
         }
       } catch (error) {
         console.error("Profile not found or fetch error. User can create a new one.");
@@ -161,13 +163,34 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAddExperience = () => {
+  const newExp: WorkExperience = {
+    id: Date.now().toString(),
+    title: "",
+    company: "",
+    location: "",
+    startDate: "",
+    endDate: "",
+    isCurrent: false,
+    description: "",
+  };
+  setWorkExperience([...workExperience, newExp]);
+  setEditingExperienceId(newExp.id); // Open for editing immediately
+};
+
+const updateExpField = (id: string, field: keyof WorkExperience, value: any) => {
+  setWorkExperience(workExperience.map(exp => 
+    exp.id === id ? { ...exp, [field]: value } : exp
+  ));
+};
+
   const handleCancel = () => window.location.reload();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-lg font-semibold text-gray-600 animate-pulse">
-          Loading Talent Connect Profile...
+          Loading Your Profile...
         </div>
       </div>
     );
@@ -181,7 +204,9 @@ export default function ProfilePage() {
 
         {/* PAGE HEADER */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {basicInfo.name || "Set your name"}
+          </h2>
           <p className="text-gray-700">
             Manage your personal and professional information
           </p>
@@ -191,7 +216,7 @@ export default function ProfilePage() {
         <div className="bg-white border border-gray-300 rounded-xl overflow-hidden relative">
 
           {/* COVER */}
-          <div className="h-32 bg-gradient-to-r from-blue-600 to-purple-600 relative z-10">
+          <div className="h-32 bg-linear-to-r from-blue-600 to-purple-600 relative z-10">
             <button className="absolute top-4 right-4 flex items-center gap-2 bg-black/30 text-white px-4 py-2 rounded-lg hover:bg-black/40">
               <Camera size={18} />
               Change Cover
@@ -242,130 +267,213 @@ export default function ProfilePage() {
         </div>
 
         {/* ================= BASIC INFO ================= */}
+
         <div className="bg-white border border-gray-300 rounded-xl p-8 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold text-gray-900">
-              Basic Information
-            </h3>
-            {isEditingBasic && (
-              <button
-                onClick={() => setIsEditingBasic(false)}
-                className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Save size={16} />
-                Save
-              </button>
-            )}
+            <h3 className="text-xl font-semibold text-gray-900">Basic Information</h3>
+
+            <button
+              onClick={() => {
+                if (isEditingBasic) {
+                  handleSaveAll(); // Save when clicking "Save"
+                } else {
+                  setIsEditingBasic(true); // Enter edit mode
+                }
+              }}
+              className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            >
+              {isEditingBasic ? <><Save size={16} /> Save</> : <><Edit2 size={16} /> Edit Profile</>}
+            </button>
           </div>
 
-          {isEditingBasic && (
+          {/* If Editing: Show Inputs. If Not: Show Text */}
+          {isEditingBasic ? (
             <div className="grid md:grid-cols-2 gap-4">
-              {Object.entries(basicInfo).map(([key, value]) => (
+              {/* Manually mapping ensures specific labels and layouts */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">Full Name</label>
                 <input
-                  key={key}
-                  className="border border-gray-300 rounded-lg p-3 text-gray-900 placeholder-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-                  placeholder={key}
-                  value={value}
-                  onChange={(e) =>
-                    setBasicInfo({ ...basicInfo, [key]: e.target.value })
-                  }
+                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-blue-100 outline-none"
+                  value={basicInfo.name}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, name: e.target.value })}
                 />
-              ))}
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">Professional Title</label>
+                <input
+                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-blue-100 outline-none"
+                  value={basicInfo.title}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">Location</label>
+                <input
+                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-blue-100 outline-none"
+                  value={basicInfo.location}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, location: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
+                <input
+                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-blue-100 outline-none"
+                  value={basicInfo.phone}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, phone: e.target.value })}
+                />
+              </div>
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">Short Bio</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-blue-100 outline-none"
+                  rows={3}
+                  value={basicInfo.bio}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, bio: e.target.value })}
+                />
+              </div>
+            </div>
+          ) : (
+            // READ-ONLY VIEW (When not editing)
+            <div className="grid md:grid-cols-2 gap-6 py-4">
+              <div>
+                <p className="text-sm text-gray-500 font-medium">Full Name</p>
+                <p className="text-gray-900">{basicInfo.name || "Not set"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">Professional Title</p>
+                <p className="text-gray-900">{basicInfo.title || "Not set"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">Location</p>
+                <p className="text-gray-900">{basicInfo.location || "Not set"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">Phone</p>
+                <p className="text-gray-900">{basicInfo.phone || "Not set"}</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* ================= WORK EXPERIENCE ================= */}
-        <div className="bg-white border border-gray-300 rounded-xl p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Briefcase size={20} className="text-blue-600" />
-              <h3 className="text-xl font-semibold text-gray-900">
-                Work Experience
-              </h3>
+        
+<div className="bg-white border border-gray-300 rounded-xl p-8 space-y-6">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <Briefcase size={20} className="text-blue-600" />
+      <h3 className="text-xl font-semibold text-gray-900">Work Experience</h3>
+    </div>
+    <button
+      onClick={handleAddExperience}
+      className="h-9 px-3 text-sm border border-gray-400 text-gray-800 rounded-lg flex items-center gap-2 hover:bg-gray-100"
+    >
+      <Plus size={14} /> Add Experience
+    </button>
+  </div>
+
+  <div className="space-y-8">
+    {workExperience.map((exp, index) => (
+      <div key={exp._id || exp.id} className={`${index !== 0 ? "pt-8 border-t border-gray-100" : ""}`}>
+        
+        {editingExperienceId === exp.id ? (
+          /* --- EDIT FORM --- */
+          <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-xl border border-blue-100">
+            <input 
+              placeholder="Job Title" 
+              className="p-2 border rounded-md text-black" 
+              value={exp.title} 
+              onChange={(e) => updateExpField(exp.id, 'title', e.target.value)} 
+            />
+            <input 
+              placeholder="Company" 
+              className="p-2 border rounded-md text-black" 
+              value={exp.company} 
+              onChange={(e) => updateExpField(exp.id, 'company', e.target.value)} 
+            />
+            
+            <div className="flex flex-col">
+              <label className="text-xs text-gray-500 mb-1">Start Date</label>
+              <input 
+                type="month" 
+                className="p-2 border rounded-md  text-black" 
+                value={exp.startDate} 
+                onChange={(e) => updateExpField(exp.id, 'startDate', e.target.value)} 
+              />
             </div>
 
-            <button
-              className="h-9 px-3 text-sm border border-gray-400 text-gray-800 
-                 rounded-lg flex items-center gap-2 hover:bg-gray-100"
-              onClick={() =>
-                setWorkExperience([
-                  ...workExperience,
-                  {
-                    id: Date.now().toString(),
-                    title: "",
-                    company: "",
-                    location: "",
-                    startDate: "",
-                    endDate: "",
-                    description: "",
-                  },
-                ])
-              }
-            >
-              <Plus size={14} />
-              Add Experience
-            </button>
+            <div className="flex flex-col">
+              <label className="text-xs text-gray-500 mb-1">End Date</label>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="month" 
+                  disabled={exp.isCurrent}
+                  className="p-2 border rounded-md flex-1 disabled:bg-gray-200  text-black" 
+                  value={exp.isCurrent ? "" : exp.endDate} 
+                  onChange={(e) => updateExpField(exp.id, 'endDate', e.target.value)} 
+                />
+                <label className="flex items-center gap-1 text-sm whitespace-nowrap  text-black">
+                  <input 
+                    type="checkbox" 
+                    checked={exp.isCurrent} 
+                    onChange={(e) => updateExpField(exp.id, 'isCurrent', e.target.checked)} 
+                  /> Present
+                </label>
+              </div>
+            </div>
+
+            <textarea 
+              placeholder="Description" 
+              className="md:col-span-2 p-2 border rounded-md  text-black" 
+              rows={3}
+              value={exp.description} 
+              onChange={(e) => updateExpField(exp.id, 'description', e.target.value)} 
+            />
+            
+            <div className="md:col-span-2 flex justify-end gap-2">
+              <button onClick={() => setEditingExperienceId(null)} className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md">Done</button>
+            </div>
           </div>
-
-          {workExperience.length === 0 ? (
-            <p className="text-gray-600">No work experience added yet.</p>
-          ) : (
-            <div className="space-y-6">
-              {workExperience.map((exp, index) => (
-                <div
-                  key={exp._id || exp.id || index}
-                  className={`${index !== 0 ? "pt-6 border-t border-gray-200" : ""}`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Building2 size={22} className="text-blue-600" />
-                    </div>
-
-                    <div className="flex-1 space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="text-gray-900 font-semibold">
-                            {exp.title || "Job Title"}
-                          </h4>
-                          <p className="text-gray-700">
-                            {exp.company || "Company Name"}
-                          </p>
-                        </div>
-
-                        <button
-                          className="text-gray-500 hover:text-red-600"
-                          onClick={() =>
-                            setWorkExperience(
-                              workExperience.filter((e) => e.id !== exp.id)
-                            )
-                          }
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-
-                      <div className="flex gap-4 text-gray-700 text-sm">
-                        <span className="flex items-center gap-1">
-                          <Calendar size={14} />
-                          {exp.startDate || "Start"} – {exp.endDate || "End"}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin size={14} />
-                          {exp.location || "Location"}
-                        </span>
-                      </div>
-
-                      <p className="text-gray-700">
-                        {exp.description || "Role description"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        ) : (
+          /* --- DISPLAY VIEW --- */
+          <div className="group relative flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+              <Building2 size={22} className="text-blue-600" />
             </div>
-          )}
-        </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="text-gray-900 font-bold text-lg">{exp.title || "Job Title"}</h4>
+                  <p className="text-gray-700 font-medium">{exp.company || "Company"}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setEditingExperienceId(exp.id)}
+                    className="p-1 text-gray-400 hover:text-blue-600"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button 
+                    onClick={() => setWorkExperience(workExperience.filter(e => e.id !== exp.id))}
+                    className="p-1 text-gray-400 hover:text-red-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex gap-4 text-gray-500 text-sm mt-1">
+                <span className="flex items-center gap-1">
+                  <Calendar size={14} />
+                  {exp.startDate || "Start"} – {exp.isCurrent ? "Present" : (exp.endDate || "End")}
+                </span>
+              </div>
+              <p className="text-gray-600 mt-2 text-sm leading-relaxed">{exp.description}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
 
         {/* ================= SKILLS ================= */}
@@ -472,7 +580,7 @@ export default function ProfilePage() {
 
           <div className="flex gap-2">
             <input
-              className="border border-gray-300 rounded-lg p-3 flex-1"
+              className="border border-gray-300 rounded-lg p-3 flex-1 text-black"
               placeholder="https://github.com/username"
               value={newPortfolioLink}
               onChange={(e) => setNewPortfolioLink(e.target.value)}
