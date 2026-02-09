@@ -17,12 +17,15 @@ import {
 
 import api from "../lib/axios";
 import { User } from "../types/auth";
+import { Profile } from "../types/profile";
+
 
 /* ============================
    TYPES
 ============================ */
 interface AuthContextType {
   user: User | null;
+  profile: Profile | null; // ✅ typed
   isAuthenticated: boolean;
   loading: boolean;
   login: (
@@ -40,6 +43,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+
 /* ============================
    CONTEXT
 ============================ */
@@ -53,11 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+
 
   /* ============================
      LOAD USER ON REFRESH
   ============================ */
-  useEffect(() => {
+useEffect(() => {
   const loadUser = async () => {
     try {
       const token =
@@ -70,14 +77,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const res = await api.get<User>("/auth/me");
-      console.log("Frontend loadUser role:", res.data.role);
       setUser(res.data);
+
+      if (res.data.role === "candidate") {
+        const { getMyProfile } = await import("../services/profile.service");
+        const profileRes = await getMyProfile();
+        setProfile(profileRes.data);
+      }
+
     } catch {
-      // Hard reset on auth failure
       localStorage.clear();
       sessionStorage.clear();
-      document.cookie = "refreshToken=; Max-Age=0; path=/";
       setUser(null);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -85,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   loadUser();
 }, []);
+
 
 
   /* ============================
@@ -126,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Lazy-load profile to check existence
         // Import here to avoid cycle in some setups
         const { getMyProfile } = await import("../services/profile.service");
-        await getMyProfile();
+        const profileRes = await getMyProfile();
+        setProfile(profileRes.data);
         router.push("/dashboard");
       } catch (err: any) {
         if (err?.response?.status === 404) {
@@ -182,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("accessToken");
     sessionStorage.removeItem("accessToken");
     setUser(null);
+    setProfile(null);
     router.push("/login");
   };
 
@@ -189,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        profile,
         isAuthenticated: !!user,
         loading,
         login,

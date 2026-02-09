@@ -18,32 +18,87 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: ""
     },
-  resumeFileId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "resumes.files",
-    default: null
-  },
+    // Basic profile info (optional; some comes from User)
+    name: {
+      type: String,
+      default: ""
+    },
+    title: {
+      type: String,
+      default: ""
+    },
+    location: {
+      type: String,
+      default: ""
+    },
+    phone: {
+      type: String,
+      default: ""
+    },
+    bio: {
+      type: String,
+      default: ""
+    },
 
-  resumeFilename: {
-    type: String,
-    default: ""
-  },
+    // Work experience entries
+    workExperience: {
+      type: [
+        {
+          title: String,
+          company: String,
+          location: String,
+          startDate: String,
+          endDate: String,
+          description: String,
+        },
+      ],
+      default: []
+    },
 
-  resumeMime: {
-    type: String,
-    default: ""
-  },
+    // Education entries
+    education: {
+      type: [
+        {
+          degree: String,
+          institution: String,
+          description: String,
+        },
+      ],
+      default: []
+    },
 
-  resumeUploaded: {
-    type: Boolean,
-    default: false
-  },
+    // Portfolio links
+    portfolioLinks: {
+      type: [String],
+      default: []
+    },
 
-  placementStatus: {
-    type: String,
-    enum: ["training", "ready", "placed"],
-    default: "training"
-  }
+    resumeFileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "resumes.files",
+      default: null
+    },
+
+    resumeFilename: {
+      type: String,
+      default: ""
+    },
+
+    resumeMime: {
+      type: String,
+      default: ""
+    },
+
+    resumeUploaded: {
+      type: Boolean,
+      default: false
+    },
+
+    placementStatus: {
+      type: String,
+      enum: ["training", "ready", "placed"],
+      default: "training"
+    }
   },
   { timestamps: true }
 );
