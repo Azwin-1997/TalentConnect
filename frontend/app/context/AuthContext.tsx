@@ -64,39 +64,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ============================
      LOAD USER ON REFRESH
   ============================ */
-useEffect(() => {
-  const loadUser = async () => {
-    try {
-      const token =
-        localStorage.getItem("accessToken") ||
-        sessionStorage.getItem("accessToken");
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const token =
+          localStorage.getItem("accessToken") ||
+          sessionStorage.getItem("accessToken");
 
-      if (!token) {
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const res = await api.get<User>("/auth/me");
+        setUser(res.data);
+
+        if (res.data.role === "candidate") {
+          const { getMyProfile } = await import("../services/profile.service");
+          const profileRes = await getMyProfile();
+          setProfile(profileRes);
+        }
+
+      } catch {
+        localStorage.clear();
+        sessionStorage.clear();
+        setUser(null);
+        setProfile(null);
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      const res = await api.get<User>("/auth/me");
-      setUser(res.data);
-
-      if (res.data.role === "candidate") {
-        const { getMyProfile } = await import("../services/profile.service");
-        const profileRes = await getMyProfile();
-        setProfile(profileRes.data);
-      }
-
-    } catch {
-      localStorage.clear();
-      sessionStorage.clear();
-      setUser(null);
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  loadUser();
-}, []);
+    loadUser();
+  }, []);
 
 
 
@@ -140,7 +140,7 @@ useEffect(() => {
         // Import here to avoid cycle in some setups
         const { getMyProfile } = await import("../services/profile.service");
         const profileRes = await getMyProfile();
-        setProfile(profileRes.data);
+        setProfile(profileRes);
         router.push("/dashboard");
       } catch (err: any) {
         if (err?.response?.status === 404) {

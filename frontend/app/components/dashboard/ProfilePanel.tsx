@@ -15,6 +15,7 @@ export function ProfilePanel() {
     { id: "3", title: "Add skills", completed: true },
     { id: "4", title: "Upload resume", completed: false },
     { id: "5", title: "Add portfolio links", completed: false },
+    { id: "6", title: "Add social profiles", completed: false },
   ];
 
   const completedTips = tips.filter((tip) => tip.completed).length;
@@ -28,11 +29,11 @@ export function ProfilePanel() {
           <span className="text-blue-600">{profileCompleteness}%</span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full mb-4">
-  <div
-    className="h-2 bg-blue-600 rounded-full"
-    style={{ width: `${profileCompleteness}%` }}
-  />
-</div>
+          <div
+            className="h-2 bg-blue-600 rounded-full"
+            style={{ width: `${profileCompleteness}%` }}
+          />
+        </div>
 
         <p className="text-gray-600">
           Complete your profile to get better job matches
@@ -60,11 +61,10 @@ export function ProfilePanel() {
                 <AlertCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
               )}
               <span
-                className={`flex-1 ${
-                  tip.completed
+                className={`flex-1 ${tip.completed
                     ? "text-gray-500 line-through"
                     : "text-gray-700"
-                }`}
+                  }`}
               >
                 {tip.title}
               </span>

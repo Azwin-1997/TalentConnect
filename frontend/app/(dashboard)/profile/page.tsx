@@ -89,6 +89,8 @@ export default function ProfilePage() {
           setWorkExperience(data.workExperience || []);
           setEducation(data.education || []);
           setPortfolioLinks(data.portfolioLinks || []);
+          setEducation(data.education || []);
+          setPortfolioLinks(data.portfolioLinks || []);
 
           // === NEW: Handle Resume Fill ===
           if (data.resumeUploaded && data.resumeFilename) {
@@ -98,8 +100,12 @@ export default function ProfilePage() {
             });
           }
         }
-      } catch (error) {
-        console.error("Profile not found or fetch error. User can create a new one.");
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          console.log("No profile found. Starting with a fresh one.");
+        } else {
+          console.error("Profile fetch error:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -164,25 +170,25 @@ export default function ProfilePage() {
   };
 
   const handleAddExperience = () => {
-  const newExp: WorkExperience = {
-    id: Date.now().toString(),
-    title: "",
-    company: "",
-    location: "",
-    startDate: "",
-    endDate: "",
-    isCurrent: false,
-    description: "",
+    const newExp: WorkExperience = {
+      id: Date.now().toString(),
+      title: "",
+      company: "",
+      location: "",
+      startDate: "",
+      endDate: "",
+      isCurrent: false,
+      description: "",
+    };
+    setWorkExperience([...workExperience, newExp]);
+    setEditingExperienceId(newExp.id); // Open for editing immediately
   };
-  setWorkExperience([...workExperience, newExp]);
-  setEditingExperienceId(newExp.id); // Open for editing immediately
-};
 
-const updateExpField = (id: string, field: keyof WorkExperience, value: any) => {
-  setWorkExperience(workExperience.map(exp => 
-    exp.id === id ? { ...exp, [field]: value } : exp
-  ));
-};
+  const updateExpField = (id: string, field: keyof WorkExperience, value: any) => {
+    setWorkExperience(workExperience.map(exp =>
+      exp.id === id ? { ...exp, [field]: value } : exp
+    ));
+  };
 
   const handleCancel = () => window.location.reload();
 
@@ -356,124 +362,124 @@ const updateExpField = (id: string, field: keyof WorkExperience, value: any) => 
         </div>
 
         {/* ================= WORK EXPERIENCE ================= */}
-        
-<div className="bg-white border border-gray-300 rounded-xl p-8 space-y-6">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-2">
-      <Briefcase size={20} className="text-blue-600" />
-      <h3 className="text-xl font-semibold text-gray-900">Work Experience</h3>
-    </div>
-    <button
-      onClick={handleAddExperience}
-      className="h-9 px-3 text-sm border border-gray-400 text-gray-800 rounded-lg flex items-center gap-2 hover:bg-gray-100"
-    >
-      <Plus size={14} /> Add Experience
-    </button>
-  </div>
 
-  <div className="space-y-8">
-    {workExperience.map((exp, index) => (
-      <div key={exp._id || exp.id} className={`${index !== 0 ? "pt-8 border-t border-gray-100" : ""}`}>
-        
-        {editingExperienceId === exp.id ? (
-          /* --- EDIT FORM --- */
-          <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-xl border border-blue-100">
-            <input 
-              placeholder="Job Title" 
-              className="p-2 border rounded-md text-black" 
-              value={exp.title} 
-              onChange={(e) => updateExpField(exp.id, 'title', e.target.value)} 
-            />
-            <input 
-              placeholder="Company" 
-              className="p-2 border rounded-md text-black" 
-              value={exp.company} 
-              onChange={(e) => updateExpField(exp.id, 'company', e.target.value)} 
-            />
-            
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-500 mb-1">Start Date</label>
-              <input 
-                type="month" 
-                className="p-2 border rounded-md  text-black" 
-                value={exp.startDate} 
-                onChange={(e) => updateExpField(exp.id, 'startDate', e.target.value)} 
-              />
+        <div className="bg-white border border-gray-300 rounded-xl p-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Briefcase size={20} className="text-blue-600" />
+              <h3 className="text-xl font-semibold text-gray-900">Work Experience</h3>
             </div>
-
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-500 mb-1">End Date</label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="month" 
-                  disabled={exp.isCurrent}
-                  className="p-2 border rounded-md flex-1 disabled:bg-gray-200  text-black" 
-                  value={exp.isCurrent ? "" : exp.endDate} 
-                  onChange={(e) => updateExpField(exp.id, 'endDate', e.target.value)} 
-                />
-                <label className="flex items-center gap-1 text-sm whitespace-nowrap  text-black">
-                  <input 
-                    type="checkbox" 
-                    checked={exp.isCurrent} 
-                    onChange={(e) => updateExpField(exp.id, 'isCurrent', e.target.checked)} 
-                  /> Present
-                </label>
-              </div>
-            </div>
-
-            <textarea 
-              placeholder="Description" 
-              className="md:col-span-2 p-2 border rounded-md  text-black" 
-              rows={3}
-              value={exp.description} 
-              onChange={(e) => updateExpField(exp.id, 'description', e.target.value)} 
-            />
-            
-            <div className="md:col-span-2 flex justify-end gap-2">
-              <button onClick={() => setEditingExperienceId(null)} className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md">Done</button>
-            </div>
+            <button
+              onClick={handleAddExperience}
+              className="h-9 px-3 text-sm border border-gray-400 text-gray-800 rounded-lg flex items-center gap-2 hover:bg-gray-100"
+            >
+              <Plus size={14} /> Add Experience
+            </button>
           </div>
-        ) : (
-          /* --- DISPLAY VIEW --- */
-          <div className="group relative flex items-start gap-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-              <Building2 size={22} className="text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="text-gray-900 font-bold text-lg">{exp.title || "Job Title"}</h4>
-                  <p className="text-gray-700 font-medium">{exp.company || "Company"}</p>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setEditingExperienceId(exp.id)}
-                    className="p-1 text-gray-400 hover:text-blue-600"
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button 
-                    onClick={() => setWorkExperience(workExperience.filter(e => e.id !== exp.id))}
-                    className="p-1 text-gray-400 hover:text-red-600"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
+
+          <div className="space-y-8">
+            {workExperience.map((exp, index) => (
+              <div key={exp._id || exp.id} className={`${index !== 0 ? "pt-8 border-t border-gray-100" : ""}`}>
+
+                {editingExperienceId === exp.id ? (
+                  /* --- EDIT FORM --- */
+                  <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-xl border border-blue-100">
+                    <input
+                      placeholder="Job Title"
+                      className="p-2 border rounded-md text-black"
+                      value={exp.title}
+                      onChange={(e) => updateExpField(exp.id, 'title', e.target.value)}
+                    />
+                    <input
+                      placeholder="Company"
+                      className="p-2 border rounded-md text-black"
+                      value={exp.company}
+                      onChange={(e) => updateExpField(exp.id, 'company', e.target.value)}
+                    />
+
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-500 mb-1">Start Date</label>
+                      <input
+                        type="month"
+                        className="p-2 border rounded-md  text-black"
+                        value={exp.startDate}
+                        onChange={(e) => updateExpField(exp.id, 'startDate', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-500 mb-1">End Date</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="month"
+                          disabled={exp.isCurrent}
+                          className="p-2 border rounded-md flex-1 disabled:bg-gray-200  text-black"
+                          value={exp.isCurrent ? "" : exp.endDate}
+                          onChange={(e) => updateExpField(exp.id, 'endDate', e.target.value)}
+                        />
+                        <label className="flex items-center gap-1 text-sm whitespace-nowrap  text-black">
+                          <input
+                            type="checkbox"
+                            checked={exp.isCurrent}
+                            onChange={(e) => updateExpField(exp.id, 'isCurrent', e.target.checked)}
+                          /> Present
+                        </label>
+                      </div>
+                    </div>
+
+                    <textarea
+                      placeholder="Description"
+                      className="md:col-span-2 p-2 border rounded-md  text-black"
+                      rows={3}
+                      value={exp.description}
+                      onChange={(e) => updateExpField(exp.id, 'description', e.target.value)}
+                    />
+
+                    <div className="md:col-span-2 flex justify-end gap-2">
+                      <button onClick={() => setEditingExperienceId(null)} className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md">Done</button>
+                    </div>
+                  </div>
+                ) : (
+                  /* --- DISPLAY VIEW --- */
+                  <div className="group relative flex items-start gap-4">
+                    <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+                      <Building2 size={22} className="text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="text-gray-900 font-bold text-lg">{exp.title || "Job Title"}</h4>
+                          <p className="text-gray-700 font-medium">{exp.company || "Company"}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingExperienceId(exp.id)}
+                            className="p-1 text-gray-400 hover:text-blue-600"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => setWorkExperience(workExperience.filter(e => e.id !== exp.id))}
+                            className="p-1 text-gray-400 hover:text-red-600"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex gap-4 text-gray-500 text-sm mt-1">
+                        <span className="flex items-center gap-1">
+                          <Calendar size={14} />
+                          {exp.startDate || "Start"} – {exp.isCurrent ? "Present" : (exp.endDate || "End")}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 mt-2 text-sm leading-relaxed">{exp.description}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-4 text-gray-500 text-sm mt-1">
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} />
-                  {exp.startDate || "Start"} – {exp.isCurrent ? "Present" : (exp.endDate || "End")}
-                </span>
-              </div>
-              <p className="text-gray-600 mt-2 text-sm leading-relaxed">{exp.description}</p>
-            </div>
+            ))}
           </div>
-        )}
-      </div>
-    ))}
-  </div>
-</div>
+        </div>
 
 
         {/* ================= SKILLS ================= */}
@@ -602,7 +608,14 @@ const updateExpField = (id: string, field: keyof WorkExperience, value: any) => 
               key={i}
               className="flex justify-between items-center bg-gray-100 p-3 rounded-lg"
             >
-              <span className="text-gray-900">{link}</span>
+              <a
+                href={link.startsWith('http') ? link : `https://${link}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                {link}
+              </a>
               <X
                 size={18}
                 className="cursor-pointer hover:text-red-600"
