@@ -5,7 +5,9 @@ const Profile = require("../models/profile.model");
 ========================= */
 const getMyProfile = async (req, res) => {
   try {
+    console.log("Fetching profile for user:", req.user?.id);
     const profile = await Profile.findOne({ user: req.user.id });
+    console.log("Profile found:", profile ? "Yes" : "No");
 
     if (!profile) {
       return res.status(404).json({
@@ -35,7 +37,6 @@ const upsertMyProfile = async (req, res) => {
       workExperience,
       education,
       portfolioLinks,
-      resumeUploaded,
       placementStatus,
       resumeFileId,
       resumeFilename,

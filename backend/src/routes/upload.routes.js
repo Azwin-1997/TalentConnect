@@ -10,6 +10,6 @@ const { uploadResumeToGridFS, downloadResumeFromGridFS } = require("../controlle
 // Upload resume to GridFS
 router.post("/resume", auth, authorize("candidate"), upload.single("resume"), uploadResumeToGridFS);
 // Download resume by GridFS file id
-router.get("/resume/:id", auth, authorize("candidate", "HR", "admin"), downloadResumeFromGridFS);
+router.get("/resume/:id", auth, authorize("candidate", "recruiter", "admin"), downloadResumeFromGridFS);
 
 module.exports = router;
